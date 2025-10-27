@@ -24,8 +24,8 @@ RUN npm run build
 # Change ownership of app files (good security!)
 RUN chown -R appuser:appgroup /app
 
-# Expose the app port (Next.js default is 3000)
-EXPOSE 3000
+# Expose the app port
+EXPOSE 3002
 
 # Switch to non-root user
 USER appuser
