@@ -1,36 +1,166 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chat Application Frontend
 
-## Getting Started
+A real-time chat application built with Next.js 16, React 19, TypeScript, and Socket.IO.
 
-First, run the development server:
+## Features
+
+- Multiple chat rooms
+- Real-time messaging using Socket.IO
+- Modern UI with Tailwind CSS
+- TypeScript for type safety
+- Dark mode support
+- Responsive design
+
+## Project Structure
+
+```
+chat/
+├── app/
+│   ├── page.tsx                 # Home page - displays all chat rooms
+│   ├── room/[roomId]/page.tsx   # Individual chat room page
+│   ├── layout.tsx               # Root layout
+│   └── globals.css              # Global styles
+├── components/
+│   ├── Message.tsx              # Individual message component
+│   ├── MessageInput.tsx         # Message input component
+│   └── RoomList.tsx             # Chat room list component
+├── lib/
+│   └── socket.ts                # Socket.IO connection utility
+├── types/
+│   └── chat.ts                  # TypeScript type definitions
+└── .env.local                   # Environment variables
+```
+
+## Prerequisites
+
+- Node.js 18+
+- Backend Express server running (in separate repository)
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
+```
+
+Update these URLs to match your backend server configuration.
+
+## Installation
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+## Development
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app will be available at `http://localhost:3002`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Backend API Requirements
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Your Express backend should implement the following endpoints:
 
-## Learn More
+### REST API Endpoints
 
-To learn more about Next.js, take a look at the following resources:
+- `GET /api/rooms` - Get all chat rooms
+  - Response: `ChatRoom[]`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `GET /api/rooms/:roomId` - Get room details
+  - Response: `ChatRoom`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `GET /api/rooms/:roomId/messages` - Get messages for a room
+  - Response: `Message[]`
 
-## Deploy on Vercel
+### Socket.IO Events
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Client → Server:**
+- `join_room` - Join a chat room
+  - Payload: `{ roomId: string }`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `send_message` - Send a message
+  - Payload: `{ roomId: string, content: string, userId: string, username: string }`
+
+- `leave_room` - Leave a chat room
+  - Payload: `{ roomId: string }`
+
+**Server → Client:**
+- `message` - Receive a new message
+  - Payload: `Message`
+
+- `user_joined` - User joined the room
+  - Payload: `{ username: string }`
+
+- `user_left` - User left the room
+  - Payload: `{ username: string }`
+
+## Type Definitions
+
+### ChatRoom
+```typescript
+interface ChatRoom {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: Date;
+  memberCount: number;
+}
+```
+
+### Message
+```typescript
+interface Message {
+  id: string;
+  roomId: string;
+  userId: string;
+  username: string;
+  content: string;
+  timestamp: Date;
+}
+```
+
+### User
+```typescript
+interface User {
+  id: string;
+  username: string;
+}
+```
+
+## Build
+
+Build the production version:
+
+```bash
+npm run build
+```
+
+## Start Production Server
+
+```bash
+npm start
+```
+
+## Technologies Used
+
+- **Next.js 16** - React framework
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Tailwind CSS v4** - Styling
+- **Socket.IO Client** - Real-time communication
+- **ESLint** - Code linting
+
+## Notes
+
+- The frontend runs on port 3002 by default
+- User IDs and usernames are randomly generated for demo purposes
+- In production, you should implement proper authentication
+- Make sure your backend server is running before starting the frontend
