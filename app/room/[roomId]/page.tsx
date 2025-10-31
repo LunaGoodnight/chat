@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Message from '@/components/Message';
-import MessageInput from '@/components/MessageInput';
-import { Message as MessageType, ChatRoom } from '@/types/chat';
-import { connectSocket, getSocket, disconnectSocket } from '@/lib/socket';
+import { useEffect, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Message from "@/components/Message";
+import MessageInput from "@/components/MessageInput";
+import { ChatRoom, Message as MessageType } from "@/types/chat";
+import { connectSocket, disconnectSocket, getSocket } from "@/lib/socket";
 
 export default function ChatRoomPage() {
   const params = useParams();
@@ -16,8 +16,12 @@ export default function ChatRoomPage() {
   const [room, setRoom] = useState<ChatRoom | null>(null);
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [userId] = useState(() => `user_${Math.random().toString(36).substr(2, 9)}`);
-  const [username] = useState(() => `User_${Math.random().toString(36).substr(2, 5)}`);
+  const [userId] = useState(
+    () => `user_${Math.random().toString(36).substr(2, 9)}`,
+  );
+  const [username] = useState(
+    () => `User_${Math.random().toString(36).substr(2, 5)}`,
+  );
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -36,38 +40,40 @@ export default function ChatRoomPage() {
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const fetchRoomDetails = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
       const response = await fetch(`${apiUrl}/rooms/${roomId}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch room details');
+        throw new Error("Failed to fetch room details");
       }
 
       const data = await response.json();
       setRoom(data);
     } catch (err) {
-      console.error('Error fetching room details:', err);
+      console.error("Error fetching room details:", err);
     }
   };
 
   const fetchMessages = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
       const response = await fetch(`${apiUrl}/rooms/${roomId}/messages`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch messages');
+        throw new Error("Failed to fetch messages");
       }
 
       const data = await response.json();
       setMessages(data);
     } catch (err) {
-      console.error('Error fetching messages:', err);
+      console.error("Error fetching messages:", err);
     } finally {
       setLoading(false);
     }
@@ -76,26 +82,26 @@ export default function ChatRoomPage() {
   const initializeSocket = () => {
     const socket = connectSocket(userId, username);
 
-    socket.on('connect', () => {
-      console.log('Connected to server');
+    socket.on("connect", () => {
+      console.log("Connected to server");
       setConnected(true);
-      socket.emit('join_room', { roomId });
+      socket.emit("join_room", { roomId });
     });
 
-    socket.on('disconnect', () => {
-      console.log('Disconnected from server');
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
       setConnected(false);
     });
 
-    socket.on('message', (message: MessageType) => {
+    socket.on("message", (message: MessageType) => {
       setMessages((prev) => [...prev, message]);
     });
 
-    socket.on('user_joined', (data: { username: string }) => {
+    socket.on("user_joined", (data: { username: string }) => {
       console.log(`${data.username} joined the room`);
     });
 
-    socket.on('user_left', (data: { username: string }) => {
+    socket.on("user_left", (data: { username: string }) => {
       console.log(`${data.username} left the room`);
     });
   };
@@ -104,7 +110,7 @@ export default function ChatRoomPage() {
     const socket = getSocket();
 
     if (socket && connected) {
-      socket.emit('send_message', {
+      socket.emit("send_message", {
         roomId,
         content,
         userId,
@@ -119,7 +125,7 @@ export default function ChatRoomPage() {
       <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push("/")}
             className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
           >
             <svg
@@ -138,7 +144,7 @@ export default function ChatRoomPage() {
           </button>
           <div>
             <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-              {room?.name || 'Chat Room'}
+              {room?.name || "Chat Room"}
             </h1>
             {room?.description && (
               <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -149,10 +155,10 @@ export default function ChatRoomPage() {
         </div>
         <div className="flex items-center gap-2">
           <div
-            className={`h-3 w-3 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`}
+            className={`h-3 w-3 rounded-full ${connected ? "bg-green-500" : "bg-red-500"}`}
           ></div>
           <span className="text-sm text-gray-600 dark:text-gray-400">
-            {connected ? 'Connected' : 'Disconnected'}
+            {connected ? "Connected" : "Disconnected"}
           </span>
         </div>
       </div>
@@ -186,7 +192,10 @@ export default function ChatRoomPage() {
       {/* Message Input */}
       <div className="border-t border-gray-200 dark:border-gray-700">
         <div className="mx-auto max-w-4xl">
-          <MessageInput onSendMessage={handleSendMessage} disabled={!connected} />
+          <MessageInput
+            onSendMessage={handleSendMessage}
+            disabled={!connected}
+          />
         </div>
       </div>
     </div>
